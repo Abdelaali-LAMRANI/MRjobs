@@ -1,0 +1,25 @@
+from mrjob.job import MRJob
+
+class MRAverage(MRJob):
+
+    def mapper(self, _, line):
+        parts = line.replace('"', '').split()
+        if len(parts) >= 3:
+            try:
+                key = parts[1]
+                value = float(parts[2])
+                yield key, value
+            except ValueError:
+                pass
+
+    def reducer(self, key, values):
+        total = 0
+        count = 0
+        for value in values:
+            total += value
+            count += 1
+        if count > 0:
+            yield key, total / count
+
+if __name__ == '__main__':
+    MRAverage.run()
